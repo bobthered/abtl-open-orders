@@ -45,7 +45,7 @@ app.post('/signup', async (req, res) => {
 });
 
 // start express server
-const server = app.listen(process.env.EXPRESS_PORT, () => {
+const server = app.listen(process.env.PORT || 5500, () => {
   console.log(`Listening at http://localhost:${process.env.EXPRESS_PORT}`);
 });
 
