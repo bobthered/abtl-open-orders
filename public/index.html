@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- META -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="App for managing open orders in ABTL" />
+
+    <!-- TITLE -->
+    <title>ABTL - Open Orders</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="./css/style.css" />
+
+    <!-- JS -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/script.js" type="module" defer></script>
+
+    <!-- PWA -->
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="apple-touch-icon" href="./images/icons/icon-apple-touch.png" />
+    <meta name="theme-color" content="#1F2937" />
+  </head>
+  <body
+    class="bg-gray-50 w-screen h-screen flex flex-col-reverse justify-between md:flex-col font-inter md:justify-start"
+  >
+    <header
+      class="grid grid-cols-5 bg-gray-800 md:flex md:justify-end md:px-4 md:py-2 md:space-x-4"
+    >
+      <button
+        class="flex items-center text-white justify-center p-2 transition duration-200 rounded hover:bg-gray-700 focus:bg-gray-700 focus:outline-none"
+        data-admin
+        data-super
+        data-user
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          class="w-8 h-8 text-white md:hidden"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        <div class="hidden md:block">Settings</div>
+      </button>
+      <button
+        class="flex items-center text-white justify-center p-2 transition duration-200 rounded hover:bg-gray-700 focus:bg-gray-700 focus:outline-none"
+        data-show-page="users"
+        data-admin
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          class="w-8 h-8 text-white md:hidden"
+        >
+          <path
+            d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
+          />
+        </svg>
+        <div class="hidden md:block">User Management</div>
+      </button>
+      <button
+        class="flex items-center text-white justify-center p-2 transition duration-200 rounded hover:bg-gray-700 focus:bg-gray-700 focus:outline-none"
+        data-show-page="add-navision"
+        data-admin
+        data-super
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          class="w-8 h-8 text-white md:hidden"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        <div class="hidden md:block">Add Navision Data</div>
+      </button>
+      <button
+        class="flex items-center text-white justify-center p-2 transition duration-200 rounded hover:bg-gray-700 focus:bg-gray-700 focus:outline-none"
+        data-show-page="orders"
+        data-admin
+        data-super
+        data-user
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          class="w-8 h-8 text-white md:hidden"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        <div class="hidden md:block">Orders</div>
+      </button>
+      <button
+        class="flex items-center text-white justify-center p-2 transition duration-200 rounded hover:bg-gray-700 focus:bg-gray-700 focus:outline-none"
+        data-signout
+        data-admin
+        data-super
+        data-user
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          class="w-8 h-8 text-white md:hidden"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        <div class="hidden md:block">Sign Out</div>
+      </button>
+    </header>
+    <main class="overflow-hidden relative h-full">
+      <div data-page="add-navision" class="opacity-0 pointer-events-none">
+        <form
+          data-form="add-navision"
+          class="p-4 flex flex-col space-y-8 h-full"
+        >
+          <h1 class="text-2xl font-bold">Paste Navision Data</h1>
+          <textarea class="w-full flex-grow" name="data"></textarea>
+          <div class="md:flex md:justify-end">
+            <button class="w-full md:w-auto">Upload</button>
+          </div>
+        </form>
+      </div>
+      <div data-page="users" class="opacity-0 pointer-events-none">
+        <div class="p-4 flex-col space-y-4 items-start">
+          <form data-form="add-user" class="flex flex-col space-y-8">
+            <div class="flex flex-col space-y-4">
+              <h1 class="text-2xl font-bold">Add User</h1>
+              <div
+                class="flex flex-col space-y-4 md:grid md:grid-cols-2 md:space-y-0 md:gap-4 lg:flex lg:flex-row lg:space-x-4 lg:gap-0"
+              >
+                <div class="flex flex-col">
+                  <label>First Name</label>
+                  <input type="text" name="first" />
+                </div>
+                <div class="flex flex-col">
+                  <label>Last Name</label>
+                  <input type="text" name="last" />
+                </div>
+                <div class="flex flex-col">
+                  <label>Email</label>
+                  <input type="email" name="email" />
+                </div>
+                <div class="flex flex-col">
+                  <label>Type</label>
+                  <select name="type">
+                    <option value="Super">Super</option>
+                    <option value="User" selected>User</option>
+                  </select>
+                </div>
+                <input type="hidden" name="password" value="Ennis01" />
+                <div class="md:col-span-2 md:flex md:justify-end lg:items-end">
+                  <button class="mt-4 w-full px-10 md:w-auto">Add</button>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div class="max-h-full min-w-full max-w-full shadow md:max-h-none">
+            <table class="min-w-full">
+              <thead>
+                <tr class="bg-gray-800 text-white">
+                  <th class="px-4 py-2">First</th>
+                  <th class="px-4 py-2">Last</th>
+                  <th class="px-4 py-2">Email</th>
+                  <th class="px-4 py-2">Type</th>
+                  <th class="px-4 py-2">Active</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template>
+                  <tr class="odd:bg-gray-100">
+                    <td class="px-4 py-2" data-field="first"></td>
+                    <td class="px-4 py-2" data-field="last"></td>
+                    <td class="px-4 py-2" data-field="email"></td>
+                    <td class="px-4 py-2" data-field="type"></td>
+                    <td class="px-4 py-2 flex justify-center">
+                      <label class="checkbox">
+                        <input type="checkbox" />
+                        <span class="w-10 h-6 block ring-2 rounded-full"></span>
+                      </label>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div data-page="orders" class="opacity-0 pointer-events-none">
+        <div class="p-4 flex-col space-y-4 items-start">
+          <filter class="inline-flex shadow rounded">
+            <button class="current" data-filter="all">All</button>
+            <button data-filter="complete">Complete</button>
+            <button data-filter="open">Open</button>
+            <button data-filter="late">Late</button>
+          </filter>
+          <div class="max-h-full min-w-full max-w-full shadow md:max-h-none">
+            <table class="min-w-full">
+              <thead>
+                <tr class="bg-gray-800 text-white">
+                  <th class="px-4 py-2 w-20">Complete</th>
+                  <th class="px-4 py-2 text-left whitespace-nowrap">SO #</th>
+                  <th class="px-4 py-2 text-right">Ship Date</th>
+                  <th class="px-4 py-2 text-right">Cust. #</th>
+                  <th class="px-4 py-2 text-left">
+                    <div class="block md:hidden">Cust.</div>
+                    <div class="hidden md:block">Customer</div>
+                  </th>
+                  <th class="px-4 py-2 text-left">Territory</th>
+                  <th class="px-4 py-2 text-right">
+                    <div class="block md:hidden">Bldg.</div>
+                    <div class="hidden md:block">Building</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <template>
+                  <tr class="transition duration-200 odd:bg-gray-100">
+                    <td class="px-4 py-2">
+                      <div class="flex justify-center">
+                        <label class="checkbox">
+                          <input type="checkbox" />
+                          <span
+                            class="w-10 h-6 block ring-2 rounded-full"
+                          ></span>
+                        </label>
+                      </div>
+                    </td>
+                    <td
+                      class="px-4 py-2 whitespace-nowrap"
+                      data-field="order"
+                    ></td>
+                    <td
+                      class="px-4 py-2 whitespace-nowrap text-right"
+                      data-field="requestedDate"
+                    ></td>
+                    <td
+                      class="px-4 py-2 whitespace-nowrap text-right"
+                      data-field="cunumber"
+                    ></td>
+                    <td
+                      class="px-4 py-2 whitespace-nowrap"
+                      data-field="account"
+                    ></td>
+                    <td
+                      class="px-4 py-2 whitespace-nowrap"
+                      data-field="territory"
+                    ></td>
+                    <td
+                      class="px-4 py-2 whitespace-nowrap text-right"
+                      data-field="building"
+                    ></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+    <signin
+      class="p-4 w-screen h-screen absolute bg-gray-50 flex items-center justify-center text-gray-800 transition duration-200 opacity-0 opacity-100"
+    >
+      <form
+        data-form="signin"
+        class="bg-white px-8 py-12 rounded shadow flex flex-col items-stretch w-full space-y-8 max-w-sm"
+      >
+        <h1 class="text-center font-bold text-2xl">Sign in to your account</h1>
+        <div class="flex flex-col">
+          <label>Email</label>
+          <input type="email" name="email" />
+        </div>
+        <div class="flex flex-col">
+          <label>Password</label>
+          <input type="password" name="password" />
+        </div>
+        <button>Sign In</button>
+      </form>
+    </signin>
+    <onboard
+      class="p-4 w-screen h-screen absolute bg-gray-50 flex items-center justify-center text-gray-800 transition duration-200 opacity-0 pointer-events-none"
+    >
+      <form
+        data-form="onboard"
+        class="bg-white px-8 py-12 rounded shadow flex flex-col items-stretch w-full space-y-8 max-w-sm"
+      >
+        <h1 class="text-center font-bold text-2xl">Set password</h1>
+        <div class="flex flex-col">
+          <label>New Password</label>
+          <input type="password" name="password" />
+        </div>
+        <div class="flex flex-col">
+          <label>New Password ( retype )</label>
+          <input type="password" name="passwordRetype" />
+        </div>
+        <input type="hidden" name="email" />
+        <button>Update Password</button>
+      </form>
+    </onboard>
+    <spinner
+      class="fixed top-0 left-0 w-screen h-screen transition duration-200 p-4 bg-black bg-opacity-75 z-10 flex justify-center items-center opacity-0 opacity-100"
+    >
+      <div class="rounded bg-gray-50 shadow p-4">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-16 h-16 text-gray-800 animate-spin"
+        >
+          <path
+            d="M23 12H24C24 5.37258 18.6274 0 12 0C5.37258 0 0 5.37258 0 12H1C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12Z"
+            fill="currentColor"
+          />
+        </svg>
+      </div>
+    </spinner>
+  </body>
+</html>

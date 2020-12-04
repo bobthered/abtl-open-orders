@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+label.checkbox {
+  @apply relative;
+}
+label.checkbox:hover {
+  @apply cursor-pointer;
+}
+label.checkbox input {
+  @apply absolute w-0 h-0 opacity-0;
+}
+label.checkbox span {
+  @apply w-12 h-6 ring-2 ring-gray-800 p-0.5;
+}
+label.checkbox span:after {
+  content: '';
+  height: 1.25rem;
+  width: 1.25rem;
+  transform: translate(0%, 0%);
+  @apply absolute bg-gray-800 block rounded-full transition duration-200;
+}
+label.checkbox input:checked ~ span {
+  @apply bg-gray-800;
+}
+label.checkbox input:checked ~ span:after {
+  transform: translate(120%, 0%);
+  @apply bg-white;
+}
+input[type='text'],
+input[type='password'],
+input[type='email'],
+input[type='number'],
+input[type='url'],
+input[type='date'],
+input[type='datetime-local'],
+input[type='month'],
+input[type='week'],
+input[type='time'],
+input[type='search'],
+input[type='tel'],
+input[type='checkbox'],
+input[type='radio'],
+select,
+select[multiple],
+textarea {
+  @apply border-0 rounded ring-1 ring-gray-400;
+}
+input[type='text'].error,
+input[type='password'].error,
+input[type='email'].error,
+input[type='number'].error,
+input[type='url'].error,
+input[type='date'].error,
+input[type='datetime-local'].error,
+input[type='month'].error,
+input[type='week'].error,
+input[type='time'].error,
+input[type='search'].error,
+input[type='tel'].error,
+input[type='checkbox'].error,
+input[type='radio'].error,
+select.error,
+select[multiple].error,
+textarea.error {
+  @apply ring-red-500;
+}
+button {
+  @apply bg-primary-500 text-white rounded px-3 py-2 leading-6;
+}
+button:focus {
+  @apply outline-none;
+}
+filter button {
+  @apply bg-transparent text-gray-800 rounded px-4 py-2 transition duration-200;
+}
+filter button.current {
+  @apply bg-gray-800 text-white z-10;
+}
+filter button:hover {
+  @apply bg-gray-100;
+}
+filter button.current:hover {
+  @apply bg-gray-700;
+}
+filter button:focus {
+  @apply focus:ring-4 focus:ring-gray-300 focus:ring-offset-2 focus:ring-offset-gray-50;
+}
+filter button.current:focus {
+  @apply focus:ring-gray-800 focus:ring-opacity-30;
+}
+header button {
+  @apply bg-transparent text-gray-800;
+}
+[data-page] {
+  @apply h-full w-full overflow-auto absolute top-0 left-0 transition duration-200;
+}
+tbody tr.late {
+  @apply bg-red-500 odd:bg-red-600;
+}
+tbody tr.late label.checkbox span {
+  @apply ring-white;
+}
+tbody tr.late label.checkbox input:checked ~ span {
+  @apply ring-gray-800;
+}
+tbody tr.late label.checkbox span:after {
+  @apply bg-white;
+}
+tbody tr.late td {
+  @apply text-white;
+}
+tbody tr.complete {
+  @apply bg-green-100 odd:bg-green-200;
+}
+tbody tr.complete td {
+  @apply line-through text-black;
+}
+tbody tr.complete label.checkbox input:checked ~ span:after {
+  @apply bg-green-100;
+}
+@tailwind utilities;

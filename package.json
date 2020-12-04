@@ -1,0 +1,40 @@
+{
+  "name": "abtl-open-orders",
+  "version": "1.0.0",
+  "description": "",
+  "main": "postcss.config.js",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.11.1",
+    "socket.io": "^3.0.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.2.1",
+    "autoprefixer": "^10.0.4",
+    "cross-env": "^7.0.2",
+    "cssnano": "^4.1.10",
+    "nodemon": "^2.0.6",
+    "postcss": "^8.1.10",
+    "postcss-cli": "^8.3.0",
+    "tailwindcss": "^2.0.1"
+  },
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "tw:build": "postcss src/css/tailwind.css -o public/css/tailwind.css",
+    "tw:production": "cross-env NODE_ENV=production postcss src/css/tailwind.css -o public/css/tailwind.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bobthered/abtl-open-orders.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bobthered/abtl-open-orders/issues"
+  },
+  "homepage": "https://github.com/bobthered/abtl-open-orders#readme"
+}
