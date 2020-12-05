@@ -1,0 +1,65 @@
+<div data-page="users" class="opacity-0 pointer-events-none">
+  <div class="p-4 flex-col space-y-4 items-start bg-gray-100 min-h-full">
+    <form data-form="add-user" class="flex flex-col space-y-8">
+      <div class="flex flex-col space-y-4">
+        <h1 class="text-2xl font-bold">Add User</h1>
+        <div
+          class="flex flex-col space-y-4 md:grid md:grid-cols-2 md:space-y-0 md:gap-4 lg:flex lg:flex-row lg:space-x-4 lg:gap-0"
+        >
+          <div class="flex flex-col">
+            <label>First Name</label>
+            <input type="text" name="first" />
+          </div>
+          <div class="flex flex-col">
+            <label>Last Name</label>
+            <input type="text" name="last" />
+          </div>
+          <div class="flex flex-col">
+            <label>Email</label>
+            <input type="email" name="email" />
+          </div>
+          <div class="flex flex-col">
+            <label>Type</label>
+            <select name="type">
+              <option value="Super">Super</option>
+              <option value="User" selected>User</option>
+            </select>
+          </div>
+          <input type="hidden" name="password" value="Ennis01" />
+          <div class="md:col-span-2 md:flex md:justify-end lg:items-end">
+            <button class="mt-4 w-full px-10 md:w-auto">Add</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="max-h-full min-w-full max-w-full shadow md:max-h-none">
+      <table class="min-w-full sortable">
+        <thead>
+          <tr>
+            <th>First</th>
+            <th>Last</th>
+            <th>Email</th>
+            <th>Type</th>
+            <th>Active</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template>
+            <tr>
+              <td data-field="first"></td>
+              <td data-field="last"></td>
+              <td data-field="email"></td>
+              <td data-field="type"></td>
+              <td class="flex justify-center">
+                <label class="checkbox">
+                  <input type="checkbox" />
+                  <span class="w-10 h-6 block ring-2 rounded-full"></span>
+                </label>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

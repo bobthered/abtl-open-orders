@@ -15,7 +15,7 @@ const mongoConnection = mongoose.connect(
     useUnifiedTopology: true,
     useCreateIndex: true,
     useFindAndModify: false,
-  },
+  }
 );
 const Order = require('./src/mongoose/schema/mongoose.schema.order');
 const User = require('./src/mongoose/schema/mongoose.schema.user');
@@ -27,9 +27,13 @@ const app = express();
 app.use(express.static(__dirname + '/public'));
 app.use(express.json());
 
+// express view engine
+app.set('view engine', 'ejs');
+
 // app routes
 app.get('/', (req, res) => {
-  res.sendFile('public/index.html', { root: __dirname });
+  res.render('routes/index');
+  // res.sendFile('public/index.html', { root: __dirname });
 });
 
 app.post('/signup', async (req, res) => {
@@ -46,7 +50,7 @@ app.post('/signup', async (req, res) => {
 
 // start express server
 const server = app.listen(process.env.PORT || 5500, () => {
-  console.log(`Listening at http://localhost:${process.env.EXPRESS_PORT}`);
+  console.log(`Listening at http://localhost:${process.env.PORT}`);
 });
 
 // socket.io setup
@@ -71,7 +75,7 @@ io.on('connection', socket => {
       'Requested Delivery Date': 'requestedDate',
       'First Item Desc.': 'description',
       'Territory Code': 'territory',
-      'Amount': 'amount',
+      Amount: 'amount',
       'Location Code': 'building',
     };
 
@@ -109,7 +113,7 @@ io.on('connection', socket => {
         } else {
           return orderLookup;
         }
-      }),
+      })
     );
 
     // send to all other clients
@@ -149,7 +153,7 @@ io.on('connection', socket => {
     const user = await User.findOneAndUpdate(
       { email },
       { password, onboarded: true },
-      { new: true },
+      { new: true }
     );
 
     // return credentials

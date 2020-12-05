@@ -1,0 +1,27 @@
+button {
+  @apply bg-primary-500 text-white rounded px-3 py-2 leading-6;
+}
+button:focus {
+  @apply outline-none;
+}
+filter button {
+  @apply bg-white text-gray-800 rounded px-4 py-2 transition duration-200;
+}
+filter button.current {
+  @apply bg-gray-800 text-white z-10;
+}
+filter button:hover {
+  @apply bg-gray-100;
+}
+filter button.current:hover {
+  @apply bg-gray-700;
+}
+filter button:focus {
+  @apply focus:ring-4 focus:ring-gray-300 focus:ring-offset-2 focus:ring-offset-gray-50;
+}
+filter button.current:focus {
+  @apply focus:ring-gray-800 focus:ring-opacity-30;
+}
+header button {
+  @apply bg-transparent text-gray-800;
+}

@@ -1,0 +1,22 @@
+<onboard
+  class="w-screen h-screen absolute flex text-gray-800 transition duration-200 bg-svg liquid-cheese bg-primary-500 opacity-0 pointer-events-none"
+>
+  <div class="w-full flex items-center justify-center">
+    <form
+      data-form="onboard"
+      class="bg-white px-8 py-12 rounded shadow-xl flex flex-col items-stretch w-full space-y-8 max-w-sm"
+    >
+      <h1 class="text-center font-bold text-2xl">Set password</h1>
+      <div class="flex flex-col">
+        <label>New Password</label>
+        <input type="password" name="password" />
+      </div>
+      <div class="flex flex-col">
+        <label>New Password ( retype )</label>
+        <input type="password" name="passwordRetype" />
+      </div>
+      <input type="hidden" name="email" />
+      <button>Update Password</button>
+    </form>
+  </div>
+</onboard>

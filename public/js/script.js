@@ -1,3 +1,6 @@
+import sortable from '../lib/sortable/sortable.es6.js';
+import sortableSortFunc from './sortFunction.js';
+
 /********************************************************************/
 /************************** SERVICE WORKER **************************/
 /********************************************************************/
@@ -70,6 +73,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // check if not logged in
   if (!localStorage.getItem('user')) spinner.hide();
 
+  // add sortable
+  sortable(document, sortableSortFunc);
+
   // global sockets
   socket.on('addNavision', orders => {
     table.clear();
@@ -82,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           : convertDateString(a.requestedDate) <
             convertDateString(b.requestedDate)
           ? -1
-          : 1,
+          : 1
       )
       .forEach(addOrder);
   });
@@ -131,7 +137,7 @@ const addNavision = e => {
           : convertDateString(a.requestedDate) <
             convertDateString(b.requestedDate)
           ? -1
-          : 1,
+          : 1
       )
       .forEach(addOrder);
     page.show('orders');
@@ -254,23 +260,23 @@ const form = {
 const header = {
   reset: () => {
     [...node.header.querySelectorAll('button')].forEach(elem =>
-      elem.classList.add('hidden'),
+      elem.classList.add('hidden')
     );
     node.header.classList.remove(
-      ...['grid-cols-2', 'grid-cols-3', 'grid-cols-4', 'grid-cols-5'],
+      ...['grid-cols-2', 'grid-cols-3', 'grid-cols-4', 'grid-cols-5']
     );
   },
   update: () => {
     header.reset();
     [
       ...node.header.querySelectorAll(
-        `button[data-${user.data.type.toLowerCase()}]`,
+        `button[data-${user.data.type.toLowerCase()}]`
       ),
     ].forEach(elem => elem.classList.remove('hidden'));
     node.header.classList.add(
       `grid-cols-${
         [...node.header.querySelectorAll('button:not(.hidden)')].length
-      }`,
+      }`
     );
   },
 };
@@ -286,7 +292,7 @@ const loadData = async () => {
             : convertDateString(a.requestedDate) <
               convertDateString(b.requestedDate)
             ? -1
-            : 1,
+            : 1
         )
         .forEach(addOrder);
       res();
@@ -308,7 +314,7 @@ const page = {
   hide: (id = null) => {
     if (id === null)
       [...node.pages].forEach(elem =>
-        elem.classList.add('opacity-0', 'pointer-events-none'),
+        elem.classList.add('opacity-0', 'pointer-events-none')
       );
     if (id !== null)
       document
@@ -333,7 +339,7 @@ const signinUser = e => {
   spinner.show();
 
   // send credentials to server
-  socket.emit('signin', form.serialize(e.target), data => {
+  socket.emit('signin', form.serialize(e.target), async data => {
     // check if error
     if ('error' in data) {
       if (data.error.code === 401)
@@ -342,8 +348,8 @@ const signinUser = e => {
         e.target.querySelector('[name="email"]').classList.add('error');
       spinner.hide();
     } else {
+      await user.signin(data.user);
       form.clear(e.target);
-      user.signin(data.user);
     }
   });
 };
@@ -444,12 +450,12 @@ const user = {
       user.data = data;
       localStorage.setItem('user', JSON.stringify(user.data));
     }
-    node.signin.classList.remove('opacity-100');
-    node.signin.classList.add('pointer-events-none');
     header.update();
     table.clear();
     users.clear();
     await Promise.all([users.findAll(), loadData()]);
+    node.signin.classList.remove('opacity-100');
+    node.signin.classList.add('pointer-events-none');
     if (user.data.onboarded === false) {
       onboard.show();
     } else {
@@ -524,8 +530,8 @@ const users = {
         }`.localeCompare(
           `${b.querySelector('[data-field="first"]').innerHTML} ${
             b.querySelector('[data-field="last"]').innerHTML
-          }`,
-        ),
+          }`
+        )
       )
       .forEach(elem => node.users.tbody.appendChild(elem));
   },

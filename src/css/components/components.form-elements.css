@@ -1,0 +1,38 @@
+input[type='text'],
+input[type='password'],
+input[type='email'],
+input[type='number'],
+input[type='url'],
+input[type='date'],
+input[type='datetime-local'],
+input[type='month'],
+input[type='week'],
+input[type='time'],
+input[type='search'],
+input[type='tel'],
+input[type='checkbox'],
+input[type='radio'],
+select,
+select[multiple],
+textarea {
+  @apply border-0 rounded ring-1 ring-gray-400;
+}
+input[type='text'].error,
+input[type='password'].error,
+input[type='email'].error,
+input[type='number'].error,
+input[type='url'].error,
+input[type='date'].error,
+input[type='datetime-local'].error,
+input[type='month'].error,
+input[type='week'].error,
+input[type='time'].error,
+input[type='search'].error,
+input[type='tel'].error,
+input[type='checkbox'].error,
+input[type='radio'].error,
+select.error,
+select[multiple].error,
+textarea.error {
+  @apply ring-red-500;
+}

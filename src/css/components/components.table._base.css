@@ -1,0 +1,24 @@
+table {
+  @apply bg-white text-sm;
+}
+tr {
+  @apply py-2 border-b border-gray-200;
+}
+th {
+  @apply font-bold p-4;
+}
+th > * {
+  @apply pointer-events-none;
+}
+td {
+  @apply px-4 py-2;
+}
+tr.late {
+  @apply bg-red-50 odd:bg-red-100 border-red-200;
+}
+tr.complete {
+  @apply bg-green-50 odd:bg-green-100 border-green-200 line-through;
+}
+tr.complete label.checkbox input:checked ~ span:after {
+  @apply bg-green-100;
+}

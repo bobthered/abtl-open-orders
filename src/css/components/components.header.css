@@ -1,0 +1,11 @@
+header {
+  @apply grid grid-cols-5 bg-gray-800 md:flex md:justify-end md:px-4 md:py-2 md:space-x-4;
+}
+
+header button {
+  @apply flex items-center text-white justify-center p-2 transition duration-200 rounded hover:bg-gray-700 focus:bg-gray-700 focus:outline-none;
+}
+
+header button svg {
+  @apply w-8 h-8 text-white md:hidden;
+}
