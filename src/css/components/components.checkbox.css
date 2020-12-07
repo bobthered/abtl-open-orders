@@ -24,3 +24,23 @@ label.checkbox input:checked ~ span:after {
   transform: translate(120%, 0%);
   @apply bg-white;
 }
+label.checkbox.readonly,
+label.checkbox.readonly input,
+label.checkbox.readonly span,
+label.checkbox.readonly span:after {
+  @apply pointer-events-none;
+}
+label.checkbox.readonly span {
+  @apply w-10 ring-0 p-0;
+}
+label.checkbox.readonly span:after {
+  content: 'No';
+  @apply top-0 left-0 w-full h-full bg-transparent flex justify-center items-center text-center;
+}
+label.checkbox.readonly input:checked ~ span {
+  @apply bg-transparent ring-0;
+}
+label.checkbox.readonly input:checked ~ span:after {
+  content: 'Yes';
+  transform: translate(0, 0);
+}

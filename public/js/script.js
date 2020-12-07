@@ -88,11 +88,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           : convertDateString(a.requestedDate) <
             convertDateString(b.requestedDate)
           ? -1
-          : 1
+          : 1,
       )
       .forEach(addOrder);
   });
   socket.on('addUser', users.add);
+  socket.on('removeUser', users.remove);
   socket.on('updateOrder', updateOrder);
   socket.on('updateUser', users.update);
 });
@@ -137,7 +138,7 @@ const addNavision = e => {
           : convertDateString(a.requestedDate) <
             convertDateString(b.requestedDate)
           ? -1
-          : 1
+          : 1,
       )
       .forEach(addOrder);
     page.show('orders');
@@ -156,14 +157,23 @@ const addOrder = obj => {
   };
 
   // update information function
-  const updateField = field =>
-    (clone.querySelector(`[data-field="${field}"]`).innerHTML = obj[field]);
+  const updateField = field => {
+    // get update field nodes
+    const elems = clone.querySelectorAll(`[data-field="${field}"]`);
+
+    elems.forEach(elem => {
+      // check field nodeName
+      if (elem.nodeName === 'INPUT') elem.checked = obj[field];
+      if (elem.nodeName === 'TD') elem.innerHTML = obj[field];
+    });
+  };
 
   // clone template
   const clone = node.orders.template.cloneNode(true);
 
   // update information
   [
+    'complete',
     'order',
     'requestedDate',
     'account',
@@ -260,23 +270,29 @@ const form = {
 const header = {
   reset: () => {
     [...node.header.querySelectorAll('button')].forEach(elem =>
-      elem.classList.add('hidden')
+      elem.classList.add('hidden'),
     );
     node.header.classList.remove(
-      ...['grid-cols-2', 'grid-cols-3', 'grid-cols-4', 'grid-cols-5']
+      ...[
+        'grid-cols-1',
+        'grid-cols-2',
+        'grid-cols-3',
+        'grid-cols-4',
+        'grid-cols-5',
+      ],
     );
   },
   update: () => {
     header.reset();
     [
       ...node.header.querySelectorAll(
-        `button[data-${user.data.type.toLowerCase()}]`
+        `button[data-${user.data.type.toLowerCase()}]`,
       ),
     ].forEach(elem => elem.classList.remove('hidden'));
     node.header.classList.add(
       `grid-cols-${
         [...node.header.querySelectorAll('button:not(.hidden)')].length
-      }`
+      }`,
     );
   },
 };
@@ -292,7 +308,7 @@ const loadData = async () => {
             : convertDateString(a.requestedDate) <
               convertDateString(b.requestedDate)
             ? -1
-            : 1
+            : 1,
         )
         .forEach(addOrder);
       res();
@@ -314,7 +330,7 @@ const page = {
   hide: (id = null) => {
     if (id === null)
       [...node.pages].forEach(elem =>
-        elem.classList.add('opacity-0', 'pointer-events-none')
+        elem.classList.add('opacity-0', 'pointer-events-none'),
       );
     if (id !== null)
       document
@@ -378,6 +394,8 @@ const table = {
     // hide all table rows
     tableRows.hide();
 
+    // update complete
+
     let querySelector;
     if (filterType === 'all') querySelector = 'tr';
     if (filterType === 'complete') querySelector = 'tr.complete';
@@ -405,7 +423,7 @@ const updateOrder = obj => {
   ].forEach(updateField);
 
   // get complete toggle
-  tr.querySelector('input').checked = obj.complete;
+  tr.querySelectorAll('input').forEach(elem => (elem.checked = obj.complete));
   tr.classList[obj.complete ? 'add' : 'remove']('complete');
 
   // check if late
@@ -454,6 +472,7 @@ const user = {
     table.clear();
     users.clear();
     await Promise.all([users.findAll(), loadData()]);
+    user.updateType();
     node.signin.classList.remove('opacity-100');
     node.signin.classList.add('pointer-events-none');
     if (user.data.onboarded === false) {
@@ -468,6 +487,16 @@ const user = {
     node.signin.classList.add('opacity-100');
     node.signin.classList.remove('pointer-events-none');
     page.hide();
+  },
+  updateType: () => {
+    document
+      .querySelectorAll(
+        '[data-admin], [data-super], [data-shipping], [data-user]',
+      )
+      .forEach(elem => elem.classList.add('hidden'));
+    document
+      .querySelectorAll(`[data-${user.data.type.toLowerCase()}]`)
+      .forEach(elem => elem.classList.remove('hidden'));
   },
 };
 const users = {
@@ -484,6 +513,14 @@ const users = {
       socket.emit('updateUser', { _id }, { active }, data => {
         console.log(data);
       });
+    };
+
+    // remove user
+    const removeUser = e => {
+      const tr = e.target.closest('tr');
+      const _id = tr.getAttribute('data-id');
+      socket.emit('removeUser', { _id });
+      tr.parentNode.removeChild(tr);
     };
 
     // update information function
@@ -505,6 +542,11 @@ const users = {
     // complete toggle event listener
     clone.querySelector('input').addEventListener('click', activeComplete);
 
+    // remove user event listener
+    clone
+      .querySelector('[data-button="delete"]')
+      .addEventListener('click', removeUser);
+
     // append clone to tbody
     node.users.tbody.appendChild(clone);
 
@@ -522,6 +564,10 @@ const users = {
       });
     });
   },
+  remove: _id => {
+    const tr = node.users.tbody.querySelector(`tr[data-id="${_id}"]`);
+    tr.parentNode.removeChild(tr);
+  },
   sort: () => {
     [...node.users.tbody.querySelectorAll('tr')]
       .sort((a, b) =>
@@ -530,8 +576,8 @@ const users = {
         }`.localeCompare(
           `${b.querySelector('[data-field="first"]').innerHTML} ${
             b.querySelector('[data-field="last"]').innerHTML
-          }`
-        )
+          }`,
+        ),
       )
       .forEach(elem => node.users.tbody.appendChild(elem));
   },

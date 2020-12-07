@@ -30,8 +30,17 @@
             <tr class="transition duration-200">
               <td>
                 <div class="flex justify-center">
-                  <label class="checkbox">
-                    <input type="checkbox" />
+                  <label
+                    data-admin
+                    data-super
+                    data-shipping
+                    class="hidden checkbox"
+                  >
+                    <input data-field="complete" type="checkbox" />
+                    <span class="w-10 h-6 block ring-2 rounded-full"></span>
+                  </label>
+                  <label data-user class="hidden checkbox readonly">
+                    <input data-field="complete" type="checkbox" />
                     <span class="w-10 h-6 block ring-2 rounded-full"></span>
                   </label>
                 </div>

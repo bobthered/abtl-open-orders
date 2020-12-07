@@ -15,7 +15,7 @@ const mongoConnection = mongoose.connect(
     useUnifiedTopology: true,
     useCreateIndex: true,
     useFindAndModify: false,
-  }
+  },
 );
 const Order = require('./src/mongoose/schema/mongoose.schema.order');
 const User = require('./src/mongoose/schema/mongoose.schema.user');
@@ -75,7 +75,7 @@ io.on('connection', socket => {
       'Requested Delivery Date': 'requestedDate',
       'First Item Desc.': 'description',
       'Territory Code': 'territory',
-      Amount: 'amount',
+      'Amount': 'amount',
       'Location Code': 'building',
     };
 
@@ -113,7 +113,7 @@ io.on('connection', socket => {
         } else {
           return orderLookup;
         }
-      })
+      }),
     );
 
     // send to all other clients
@@ -153,11 +153,21 @@ io.on('connection', socket => {
     const user = await User.findOneAndUpdate(
       { email },
       { password, onboarded: true },
-      { new: true }
+      { new: true },
     );
 
     // return credentials
     return cb({ user });
+  });
+  // on removeUser
+  socket.on('removeUser', async req => {
+    // get user _id
+    const { _id } = req;
+
+    try {
+      await User.findOneAndRemove({ _id });
+      socket.broadcast.emit('removeUser', _id);
+    } catch (error) {}
   });
   // on signup
   socket.on('signin', async (req, cb) => {
