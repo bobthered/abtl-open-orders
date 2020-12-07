@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           : 1,
       )
       .forEach(addOrder);
+    user.updateType();
   });
   socket.on('addUser', users.add);
   socket.on('removeUser', users.remove);
@@ -141,6 +142,7 @@ const addNavision = e => {
           : 1,
       )
       .forEach(addOrder);
+    user.updateType();
     page.show('orders');
     spinner.hide();
   });
