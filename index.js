@@ -53,7 +53,7 @@ app.post('/fixdb', async (req, res) => {
   // update the date
   await Promise.all(
     orders.map(async order => {
-      // const _id = order._id;
+      const _id = order._id;
       // const orderDate =
       //   order.orderDate === '' ? '' : new Date(order.orderDate).getTime();
       // const requestedDate =
