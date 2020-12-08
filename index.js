@@ -51,19 +51,20 @@ app.post('/fixdb', async (req, res) => {
   const orders = await Order.find();
 
   // update the date
-  await Promise.all(
-    orders.map(async order => {
-      const _id = order._id;
-      // const orderDate =
-      //   order.orderDate === '' ? '' : new Date(order.orderDate).getTime();
-      // const requestedDate =
-      //   order.requestedDate === ''
-      //     ? ''
-      //     : new Date(order.requestedDate).getTime();
+  await Order.updateMany({ complete: true }, { shipDate: Date.now() });
+  // await Promise.all(
+  //   orders.map(async order => {
+  //     const _id = order._id;
+  //     // const orderDate =
+  //     //   order.orderDate === '' ? '' : new Date(order.orderDate).getTime();
+  //     // const requestedDate =
+  //     //   order.requestedDate === ''
+  //     //     ? ''
+  //     //     : new Date(order.requestedDate).getTime();
 
-      await Order.findOneAndUpdate({ _id }, { shipDate: Date.now() });
-    }),
-  );
+  //     await Order.findOneAndUpdate({ _id }, { shipDate: Date.now() });
+  //   }),
+  // );
   res.status(200).send({ message: 'Success' });
 });
 
