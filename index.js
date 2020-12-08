@@ -61,7 +61,7 @@ app.post('/fixdb', async (req, res) => {
       //     ? ''
       //     : new Date(order.requestedDate).getTime();
 
-      await Order.findOneAndUpdate({ _id }, { shipDate: '' });
+      await Order.findOneAndUpdate({ _id }, { shipDate: Date.now() });
     }),
   );
   res.status(200).send({ message: 'Success' });
