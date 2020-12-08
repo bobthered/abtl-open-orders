@@ -1,3 +1,4 @@
+import moment from '../lib/moment/moment.js';
 import sortable from '../lib/sortable/sortable.es6.js';
 import sortableSortFunc from './sortFunction.js';
 
@@ -91,16 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   socket.on('addNavision', orders => {
     table.clear();
     orders
-      .sort((a, b) =>
-        a.requestedDate === ''
-          ? 1
-          : b.requestedDate === ''
-          ? -1
-          : convertDateString(a.requestedDate) <
-            convertDateString(b.requestedDate)
-          ? -1
-          : 1,
-      )
+      .sort((a, b) => (a.requestedDate < b.requestedDate ? -1 : 1))
       .forEach(addOrder);
     user.updateType();
   });
@@ -148,16 +140,7 @@ const addNavision = e => {
     table.clear();
     form.clear(e.target);
     data
-      .sort((a, b) =>
-        a.requestedDate === ''
-          ? 1
-          : b.requestedDate === ''
-          ? -1
-          : convertDateString(a.requestedDate) <
-            convertDateString(b.requestedDate)
-          ? -1
-          : 1,
-      )
+      .sort((a, b) => (a.requestedDate < b.requestedDate ? -1 : 1))
       .forEach(addOrder);
     user.updateType();
     page.show('orders');
@@ -222,8 +205,20 @@ const addOrder = obj => {
 
   // complete toggle event listener function
   const completeToggle = e => {
+    // get the id
+    const { _id } = obj;
+
+    // get the tr element
     const tr = e.target.closest('tr');
+
+    // toggle complete class
     tr.classList.toggle('complete');
+
+    // update complete date
+    if (e.target.checked === true) obj.shipDate = Date.now();
+    if (e.target.checked === false) obj.shipDate = '';
+    socket.emit('updateOrder', { _id }, { shipDate: obj.shipDate });
+    updateField('shipDate', tr);
   };
 
   // input event listener function
@@ -299,7 +294,7 @@ const addOrder = obj => {
       { where: { _id }, select: { revisions: 1, order: 1 } },
       data => {
         const body =
-          '<div class="overflow-auto shadow" style="max-height:60vh"><table><thead><th>Date</th><th>User</th><th>Revision</th></thead><tbody>' +
+          '<div class="overflow-auto shadow" style="max-height:60vh"><table class="w-full"><thead><th>Date</th><th>User</th><th>Revision</th></thead><tbody>' +
           data.revisions
             .reverse()
             .map(
@@ -322,12 +317,24 @@ const addOrder = obj => {
   };
 
   // update information function
-  const updateField = field => {
+  const updateField = (field, tr = null) => {
     // get update field nodes
-    const elems = clone.querySelectorAll(`[data-field="${field}"]`);
+    const elems =
+      tr !== null
+        ? tr.querySelectorAll(`[data-field="${field}"]`)
+        : clone.querySelectorAll(`[data-field="${field}"]`);
 
     elems.forEach(elem => {
-      // check field nodeName
+      // check if field needs to be formatted
+      if (
+        elem.hasAttribute('data-field-format') &&
+        elem.getAttribute('data-field-format') === 'date'
+      ) {
+        elem.setAttribute('data-sort', obj[field]);
+        obj[field] =
+          obj[field] === '' ? '' : moment(obj[field], 'x').format('M/D/YY');
+      }
+      // update field
       if (elem.nodeName === 'BUTTON') elem.innerHTML = obj[field].length || 0;
       if (elem.nodeName === 'INPUT' && elem.getAttribute('type') === 'checkbox')
         elem.checked = obj[field];
@@ -345,13 +352,14 @@ const addOrder = obj => {
     'complete',
     'order',
     'requestedDate',
+    'shipDate',
     'account',
     'cunumber',
     'territory',
     'building',
     'revisions',
     'notes',
-  ].forEach(updateField);
+  ].forEach(field => updateField(field));
 
   // get tr elem
   const tr = clone.querySelector('tr');
@@ -361,7 +369,7 @@ const addOrder = obj => {
 
   // check if late
   if (
-    convertDateString(obj.requestedDate) <
+    moment(obj.requestedDate, 'M/D/YY').format('x') <
     Math.floor(Date.now() / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)
   )
     tr.classList.add('late');
@@ -426,10 +434,6 @@ const addUser = e => {
     }
     spinner.hide();
   });
-};
-const convertDateString = s => {
-  s = s.split('/');
-  return new Date(2000 + +s[2], s[0] - 1, s[1]).getTime();
 };
 const currentDateString = () => {
   const date = new Date();
@@ -496,22 +500,23 @@ const header = {
   },
 };
 const loadData = async () => {
+  const today =
+    Math.floor(new Date().getTime() / (1000 * 60 * 60 * 24)) *
+    1000 *
+    60 *
+    60 *
+    24;
   await new Promise(res => {
-    socket.emit('findAllOrders', orders => {
-      orders
-        .sort((a, b) =>
-          a.requestedDate === ''
-            ? 1
-            : b.requestedDate === ''
-            ? -1
-            : convertDateString(a.requestedDate) <
-              convertDateString(b.requestedDate)
-            ? -1
-            : 1,
-        )
-        .forEach(addOrder);
-      res();
-    });
+    socket.emit(
+      'findOrders',
+      { where: { $or: [{ shipDate: '' }, { shipDate: { $gte: today } }] } },
+      orders => {
+        orders
+          .sort((a, b) => (a.requestedDate < b.requestedDate ? -1 : 1))
+          .forEach(addOrder);
+        res();
+      },
+    );
   });
 };
 const modal = {
@@ -622,13 +627,27 @@ const table = {
 const updateOrder = obj => {
   // update information function
   const updateField = field => {
-    const elem = tr.querySelector(`[data-field="${field}"]`);
-    if (elem.nodeName === 'BUTTON') elem.innerHTML = obj[field].length || 0;
-    if (elem.nodeName === 'INPUT' && elem.getAttribute('type') === 'checkbox')
-      elem.checked = obj[field];
-    if (elem.nodeName === 'INPUT' && elem.getAttribute('type') === 'text')
-      elem.value = obj[field];
-    if (elem.nodeName === 'TD') elem.innerHTML = obj[field];
+    // get update field nodes
+    const elems = tr.querySelectorAll(`[data-field="${field}"]`);
+
+    elems.forEach(elem => {
+      // check if field needs to be formatted
+      if (
+        elem.hasAttribute('data-field-format') &&
+        elem.getAttribute('data-field-format') === 'date'
+      ) {
+        elem.setAttribute('data-sort', obj[field]);
+        obj[field] =
+          obj[field] === '' ? '' : moment(obj[field], 'x').format('M/D/YY');
+      }
+      // update field
+      if (elem.nodeName === 'BUTTON') elem.innerHTML = obj[field].length || 0;
+      if (elem.nodeName === 'INPUT' && elem.getAttribute('type') === 'checkbox')
+        elem.checked = obj[field];
+      if (elem.nodeName === 'INPUT' && elem.getAttribute('type') === 'text')
+        elem.value = obj[field];
+      if (elem.nodeName === 'TD') elem.innerHTML = obj[field];
+    });
   };
 
   // get tr element
@@ -639,6 +658,7 @@ const updateOrder = obj => {
     'complete',
     'order',
     'requestedDate',
+    'shipDate',
     'account',
     'cunumber',
     'territory',
@@ -655,7 +675,7 @@ const updateOrder = obj => {
 
   // check if late
   if (
-    convertDateString(obj.requestedDate) <
+    moment(obj.requestedDate, 'M/D/YY').format('x') <
     Math.floor(Date.now() / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)
   )
     tr.classList.add('late');

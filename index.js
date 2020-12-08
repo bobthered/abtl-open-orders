@@ -33,11 +33,9 @@ app.set('view engine', 'ejs');
 // app routes
 app.get('/', (req, res) => {
   res.render('routes/index');
-  // res.sendFile('public/index.html', { root: __dirname });
 });
 
 app.post('/signup', async (req, res) => {
-  // const { first, last, email, password, type } = req.body;
   const user = new User(req.body);
   try {
     await user.save();
@@ -46,6 +44,27 @@ app.post('/signup', async (req, res) => {
     console.log(error);
     res.status(409).send({ message: `Email "${email}" already exists` });
   }
+});
+
+app.post('/fixdb', async (req, res) => {
+  // get all orders
+  const orders = await Order.find();
+
+  // update the date
+  await Promise.all(
+    orders.map(async order => {
+      const _id = order._id;
+      const orderDate =
+        order.orderDate === '' ? '' : new Date(order.orderDate).getTime();
+      const requestedDate =
+        order.requestedDate === ''
+          ? ''
+          : new Date(order.requestedDate).getTime();
+
+      await Order.findOneAndUpdate({ _id }, { orderDate, requestedDate });
+    }),
+  );
+  res.status(200).send({ message: 'Success' });
 });
 
 // start express server
@@ -64,7 +83,7 @@ io.on('connection', socket => {
   // on addNavision
   socket.on('addNavision', async (req, revision, cb) => {
     // remove all previous orders
-    await Order.deleteMany({ complete: true });
+    // await Order.deleteMany({ complete: true });
 
     // column name reference
     const columns = {
@@ -79,6 +98,14 @@ io.on('connection', socket => {
       'Location Code': 'building',
     };
 
+    // column types
+    const columnTypes = {
+      date: {
+        columns: ['Order Date', 'Requested Delivery Date'],
+        format: s => (s === '' ? '' : new Date(s).getTime()),
+      },
+    };
+
     // get data
     let orders = req.data.split(/\n\s*/g).map(a => a.split(/\t/g));
 
@@ -87,35 +114,34 @@ io.on('connection', socket => {
 
     // add each order
     orders = await Promise.all(
-      orders.map(async arr => {
-        // get so#
-        const orderNumber = arr[header.indexOf('No.')];
+      orders.map(async (arr, i) => {
+        // init obj
+        const obj = {};
 
-        // check if order already in list
-        const orderLookup = await Order.findOne({ order: orderNumber });
-
-        if (!orderLookup) {
-          // init obj
-          const obj = {};
-
-          // get all column values
-          Object.keys(columns).forEach(column => {
-            obj[columns[column]] = arr[header.indexOf(column)];
+        // get all column values
+        Object.keys(columns).forEach(column => {
+          obj[columns[column]] = arr[header.indexOf(column)];
+          // loop through columnTypes
+          Object.keys(columnTypes).forEach(type => {
+            if (columnTypes[type].columns.indexOf(column) !== -1) {
+              obj[columns[column]] = columnTypes[type].format(
+                arr[header.indexOf(column)],
+              );
+            }
           });
+        });
 
-          // add revision
-          obj.revisions = [revision];
+        // add revision
+        // obj.revision = [revision];
 
-          // create new document
-          const order = new Order(obj);
+        // create new document
+        const order = await Order.findOneAndUpdate({ order: obj.order }, obj, {
+          new: true,
+          upsert: true,
+          setDefaultsOnInsert: true,
+        });
 
-          // save document
-          await order.save();
-
-          return order;
-        } else {
-          return orderLookup;
-        }
+        return order;
       }),
     );
 
@@ -133,7 +159,7 @@ io.on('connection', socket => {
     // merge defaults with params
     params = { ...defaults, ...params };
 
-    // initialize order
+    // find order
     const order =
       Object.keys(params.select).length === 0
         ? await Order.findOne(params.where)
@@ -143,11 +169,21 @@ io.on('connection', socket => {
     return cb(order);
   });
 
-  // on findAllOrders
-  socket.on('findAllOrders', async cb => {
-    // find all users
-    const orders = await Order.find();
+  // on findOrders
+  socket.on('findOrders', async (params, cb) => {
+    // set defaults
+    const defaults = { where: {}, select: {} };
 
+    // merge defaults with params;
+    params = { ...defaults, ...params };
+
+    // find orders
+    const orders =
+      Object.keys(params.select).length === 0
+        ? await Order.find(params.where)
+        : await Order.find(params.where).select(params.select);
+
+    // return orders
     return cb(orders);
   });
 
