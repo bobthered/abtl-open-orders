@@ -1,4 +1,4 @@
-const dynamicCacheName = 'site-dynamic-0.0.2';
+const dynamicCacheName = 'site-dynamic-0.0.4';
 // activate event
 self.addEventListener('activate', evt => {
   evt.waitUntil(
@@ -16,7 +16,7 @@ self.addEventListener('fetch', evt => {
   evt.respondWith(
     caches.match(evt.request).then(cacheRes => {
       return (
-        cacheRes ||
+        // cacheRes ||
         fetch(evt.request).then(fetchRes => {
           return caches.open(dynamicCacheName).then(cache => {
             cache.put(evt.request.url, fetchRes.clone());

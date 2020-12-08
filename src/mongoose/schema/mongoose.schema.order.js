@@ -15,6 +15,18 @@ const OrderSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  notes: [
+    {
+      type: String,
+    },
+  ],
+  revisions: [
+    {
+      date: String,
+      revision: String,
+      user: String,
+    },
+  ],
 });
 
 module.exports = mongoose.model('Order', OrderSchema);

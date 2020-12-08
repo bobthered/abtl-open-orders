@@ -34,6 +34,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       template: document.querySelector('[data-page="orders"] template').content,
     },
     menu: document.querySelector('[data-menu]'),
+    modal: {
+      body: document.querySelector('modal .body'),
+      container: document.querySelector('modal'),
+      closes: document.querySelectorAll('[data-modal-close]'),
+      title: document.querySelector('modal .title'),
+    },
     pages: document.querySelectorAll('[data-page]'),
     signin: document.querySelector('signin'),
     signout: document.querySelector('[data-signout]'),
@@ -59,6 +65,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   node.form.addUser.addEventListener('submit', addUser);
   node.form.onboard.addEventListener('submit', user.onboard);
   node.form.signin.addEventListener('submit', signinUser);
+
+  // modal closes listeners
+  node.modal.closes.forEach(elem =>
+    elem.addEventListener('click', () => modal.hide()),
+  );
 
   // sign out listener
   node.signout.addEventListener('click', user.signout);
@@ -126,8 +137,14 @@ const addNavision = e => {
   // show spinner
   spinner.show();
 
+  // set revision
+  const revision = {};
+  revision.date = currentDateString();
+  revision.revision = 'Added from Navision';
+  revision.user = `${user.data.first} ${user.data.last}`;
+
   // send credentials to server
-  socket.emit('addNavision', form.serialize(e.target), data => {
+  socket.emit('addNavision', form.serialize(e.target), revision, data => {
     table.clear();
     form.clear(e.target);
     data
@@ -148,14 +165,160 @@ const addNavision = e => {
   });
 };
 const addOrder = obj => {
+  // add note event listener function
+  const addNoteEventListener = e => {
+    // get tr
+    const tr = e.target.closest('tr');
+
+    // get order _id
+    const _id = tr.getAttribute('data-id');
+
+    // get order so
+    const order = tr.querySelector('[data-field="order"]').innerHTML;
+
+    // set body
+    const body =
+      '<form class="w-96 flex flex-col space-y-4 items-end"><textarea class="h-48 w-full resize-none"></textarea><button>Add Note</button></form>';
+
+    // show modal
+    modal.show({
+      body,
+      title: `Add Note - ${order}`,
+    });
+
+    // add submit listener
+    node.modal.body.querySelector('form').addEventListener('submit', e => {
+      e.preventDefault();
+
+      // get note
+      const note = e.target.querySelector('textarea').value;
+
+      // set revision
+      const revision = {
+        date: currentDateString(),
+        revision: `Added Note - ${note}`,
+        user: `${user.data.first} ${user.data.last}`,
+      };
+
+      // send update
+      socket.emit(
+        'updateOrder',
+        { _id },
+        { $push: { notes: note, revisions: revision } },
+      );
+
+      // hide modal
+      modal.hide();
+
+      // increment note button
+      tr.querySelector('[data-field="notes"]').innerHTML =
+        +tr.querySelector('[data-field="notes"]').innerHTML + 1;
+
+      // increment revision button
+      tr.querySelector('[data-field="revisions"]').innerHTML =
+        +tr.querySelector('[data-field="revisions"]').innerHTML + 1;
+    });
+  };
+
   // complete toggle event listener function
   const completeToggle = e => {
     const tr = e.target.closest('tr');
     tr.classList.toggle('complete');
-    const _id = tr.getAttribute('data-id');
-    const complete = e.target.checked;
-    socket.emit('updateOrder', { _id }, { complete });
-    table.update();
+  };
+
+  // input event listener function
+  const inputEventListener = elem => {
+    elem.addEventListener('change', e => {
+      const tr = e.target.closest('tr');
+      const _id = tr.getAttribute('data-id');
+      const field = e.target.getAttribute('data-field');
+      const update = {};
+      if (
+        e.target.nodeName === 'INPUT' &&
+        elem.getAttribute('type') === 'checkbox'
+      )
+        update[field] = e.target.checked;
+      if (e.target.nodeName === 'INPUT' && elem.getAttribute('type') === 'text')
+        update[field] = e.target.value;
+      socket.emit('updateOrder', { _id }, update);
+
+      // check if is complete button
+      if (field === 'complete') {
+        const revision = {};
+        revision.date = currentDateString();
+        revision.revision = e.target.checked ? 'Completed' : 'Uncompleted';
+        revision.user = `${user.data.first} ${user.data.last}`;
+        tr.querySelector('[data-field="revisions"]').innerHTML =
+          +tr.querySelector('[data-field="revisions"]').innerHTML + 1;
+        socket.emit('updateOrder', { _id }, { $push: { revisions: revision } });
+      }
+
+      table.update();
+    });
+  };
+
+  // note event listener function
+  const noteEventListener = e => {
+    // show spinner
+    spinner.show();
+
+    // get order _id
+    const _id = e.target.closest('tr').getAttribute('data-id');
+
+    socket.emit(
+      'findOneOrder',
+      { where: { _id }, select: { notes: 1, order: 1 } },
+      data => {
+        const body =
+          '<div class="overflow-auto shadow" style="max-height:60vh"><table class="w-full"><thead><th>Note</th></thead><tbody>' +
+          data.notes.map(note => `<tr><td>${note}</td></tr>`).join('\n') +
+          '</tbody></table></div>';
+
+        // hike spinner
+        spinner.hide();
+
+        // show modal
+        modal.show({
+          body,
+          title: `Notes - ${data.order}`,
+        });
+      },
+    );
+  };
+
+  // revision event listener function
+  const revisionEventListener = e => {
+    // show spinner
+    spinner.show();
+
+    // get order _id
+    const _id = e.target.closest('tr').getAttribute('data-id');
+
+    socket.emit(
+      'findOneOrder',
+      { where: { _id }, select: { revisions: 1, order: 1 } },
+      data => {
+        const body =
+          '<div class="overflow-auto shadow" style="max-height:60vh"><table><thead><th>Date</th><th>User</th><th>Revision</th></thead><tbody>' +
+          data.revisions
+            .reverse()
+            .map(
+              obj =>
+                `<tr><td>${obj.date}</td><td>${obj.user}</td><td>${obj.revision}</td></tr>`,
+            )
+            .join('\n') +
+          '</tbody></table></div>';
+
+        // hike spinner
+        spinner.hide();
+
+        // show modal
+        modal.show({
+          body,
+          title: `Revisions - ${data.order}`,
+        });
+      },
+    );
   };
 
   // update information function
@@ -165,7 +328,11 @@ const addOrder = obj => {
 
     elems.forEach(elem => {
       // check field nodeName
-      if (elem.nodeName === 'INPUT') elem.checked = obj[field];
+      if (elem.nodeName === 'BUTTON') elem.innerHTML = obj[field].length || 0;
+      if (elem.nodeName === 'INPUT' && elem.getAttribute('type') === 'checkbox')
+        elem.checked = obj[field];
+      if (elem.nodeName === 'INPUT' && elem.getAttribute('type') === 'text')
+        elem.value = obj[field];
       if (elem.nodeName === 'TD') elem.innerHTML = obj[field];
     });
   };
@@ -182,26 +349,48 @@ const addOrder = obj => {
     'cunumber',
     'territory',
     'building',
+    'revisions',
+    'notes',
   ].forEach(updateField);
 
-  // update complete toggle
-  clone.querySelector('input').checked = obj.complete;
-  clone
-    .querySelector('tr')
-    .classList[obj.complete ? 'add' : 'remove']('complete');
+  // get tr elem
+  const tr = clone.querySelector('tr');
 
-  // complete toggle event listener
-  clone.querySelector('input').addEventListener('click', completeToggle);
-
-  // set row id
-  clone.querySelector('tr').setAttribute('data-id', obj._id);
+  // check if complete
+  tr.classList[obj.complete ? 'add' : 'remove']('complete');
 
   // check if late
   if (
     convertDateString(obj.requestedDate) <
     Math.floor(Date.now() / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)
   )
-    clone.querySelector('tr').classList.add('late');
+    tr.classList.add('late');
+
+  // input event listeners
+  clone.querySelectorAll('input, select, textarea').forEach(inputEventListener);
+
+  // revision event listener
+  clone
+    .querySelector('[data-field="revisions"]')
+    .addEventListener('click', revisionEventListener);
+
+  // note event listener
+  clone
+    .querySelector('[data-field="notes"]')
+    .addEventListener('click', noteEventListener);
+
+  // add note event listener
+  clone
+    .querySelector('[data-add-note]')
+    .addEventListener('click', addNoteEventListener);
+
+  // complete toggle event listener
+  clone
+    .querySelector('[data-field="complete"]')
+    .addEventListener('click', completeToggle);
+
+  // set row id
+  tr.setAttribute('data-id', obj._id);
 
   // append clone to tbody
   node.orders.tbody.appendChild(clone);
@@ -241,6 +430,14 @@ const addUser = e => {
 const convertDateString = s => {
   s = s.split('/');
   return new Date(2000 + +s[2], s[0] - 1, s[1]).getTime();
+};
+const currentDateString = () => {
+  const date = new Date();
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()} @ ${
+    date.getHours() % 12
+  }:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(
+    -2,
+  )} ${date.getHours() < 12 ? 'AM' : 'PM'}`;
 };
 const form = {
   clear: elem => {
@@ -316,6 +513,22 @@ const loadData = async () => {
       res();
     });
   });
+};
+const modal = {
+  hide: () => {
+    node.modal.container.classList.add('pointer-events-none');
+    node.modal.container.classList.remove('opacity-100');
+  },
+  show: params => {
+    // update title
+    if ('title' in params) node.modal.title.innerHTML = params.title;
+
+    // update body
+    if ('body' in params) node.modal.body.innerHTML = params.body;
+
+    node.modal.container.classList.remove('pointer-events-none');
+    node.modal.container.classList.add('opacity-100');
+  },
 };
 const onboard = {
   hide: () => {
@@ -408,24 +621,36 @@ const table = {
 };
 const updateOrder = obj => {
   // update information function
-  const updateField = field =>
-    (tr.querySelector(`[data-field="${field}"]`).innerHTML = obj[field]);
+  const updateField = field => {
+    const elem = tr.querySelector(`[data-field="${field}"]`);
+    if (elem.nodeName === 'BUTTON') elem.innerHTML = obj[field].length || 0;
+    if (elem.nodeName === 'INPUT' && elem.getAttribute('type') === 'checkbox')
+      elem.checked = obj[field];
+    if (elem.nodeName === 'INPUT' && elem.getAttribute('type') === 'text')
+      elem.value = obj[field];
+    if (elem.nodeName === 'TD') elem.innerHTML = obj[field];
+  };
 
   // get tr element
   const tr = node.orders.tbody.querySelector(`tr[data-id="${obj._id}"]`);
 
   // update information
   [
+    'complete',
     'order',
     'requestedDate',
     'account',
     'cunumber',
     'territory',
     'building',
+    'revisions',
+    'notes',
   ].forEach(updateField);
 
   // get complete toggle
-  tr.querySelectorAll('input').forEach(elem => (elem.checked = obj.complete));
+  tr.querySelectorAll('[data-field="complete"]').forEach(
+    elem => (elem.checked = obj.complete),
+  );
   tr.classList[obj.complete ? 'add' : 'remove']('complete');
 
   // check if late

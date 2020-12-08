@@ -1,0 +1,98 @@
+<div data-page="orders" class="opacity-0 pointer-events-none">
+  <div class="p-4 flex-col space-y-4 items-start bg-gray-100">
+    <filter class="inline-flex shadow rounded">
+      <button class="current" data-filter="all">All</button>
+      <button data-filter="complete">Complete</button>
+      <button data-filter="open">Open</button>
+      <button data-filter="late">Late</button>
+    </filter>
+    <div class="max-h-full min-w-full max-w-full shadow md:max-h-none">
+      <table class="min-w-full sortable">
+        <thead>
+          <tr>
+            <th class="w-20">Complete</th>
+            <th class="w-1">Revisions</th>
+            <th class="text-left whitespace-nowrap">SO #</th>
+            <th class="text-right">Ship Date</th>
+            <th class="text-right">Cust. #</th>
+            <th class="text-left">Customer</th>
+            <th class="w-1">Notes</th>
+            <th class="text-left">Territory</th>
+            <th class="text-right">Building</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template>
+            <tr class="transition duration-200">
+              <td>
+                <div class="flex justify-center">
+                  <label
+                    data-admin
+                    data-super
+                    data-shipping
+                    class="hidden checkbox"
+                  >
+                    <input data-field="complete" type="checkbox" />
+                    <span class="w-10 h-6 block ring-2 rounded-full"></span>
+                  </label>
+                  <label data-user class="hidden checkbox readonly">
+                    <input data-field="complete" type="checkbox" />
+                    <span class="w-10 h-6 block ring-2 rounded-full"></span>
+                  </label>
+                </div>
+              </td>
+              <td class="py-1">
+                <div class="flex items-center justify-center">
+                  <button
+                    class="bg-transparent py-1 rounded-full leading-4 ring-2 ring-gray-800 text-gray-800 w-12"
+                    data-field="revisions"
+                  ></button>
+                </div>
+              </td>
+              <td class="whitespace-nowrap" data-field="order"></td>
+              <td
+                class="whitespace-nowrap text-right"
+                data-field="requestedDate"
+              ></td>
+              <td
+                class="whitespace-nowrap text-right"
+                data-field="cunumber"
+              ></td>
+              <td class="whitespace-nowrap" data-field="account"></td>
+              <td class="py-1">
+                <div class="flex space-x-4">
+                  <button
+                    class="py-1 rounded-full leading-4 ring-2 ring-gray-800 bg-transparent text-gray-800 w-12"
+                    data-field="notes"
+                  ></button>
+                  <button
+                    class="p-0 bg-transparent rounded-full ring-2 ring-gray-800"
+                    data-add-note
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      class="w-6 h-6 text-gray-800"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+              <td class="whitespace-nowrap" data-field="territory"></td>
+              <td
+                class="whitespace-nowrap text-right"
+                data-field="building"
+              ></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -62,7 +62,7 @@ io.on('connection', socket => {
   // console.log('SOCKET.IO - a user connected');
 
   // on addNavision
-  socket.on('addNavision', async (req, cb) => {
+  socket.on('addNavision', async (req, revision, cb) => {
     // remove all previous orders
     await Order.deleteMany({ complete: true });
 
@@ -103,6 +103,9 @@ io.on('connection', socket => {
             obj[columns[column]] = arr[header.indexOf(column)];
           });
 
+          // add revision
+          obj.revisions = [revision];
+
           // create new document
           const order = new Order(obj);
 
@@ -120,6 +123,24 @@ io.on('connection', socket => {
     socket.broadcast.emit('addNavision', orders);
 
     return cb(orders);
+  });
+
+  // on findOrder
+  socket.on('findOneOrder', async (params, cb) => {
+    // set defaults
+    const defaults = { where: {}, select: {} };
+
+    // merge defaults with params
+    params = { ...defaults, ...params };
+
+    // initialize order
+    const order =
+      Object.keys(params.select).length === 0
+        ? await Order.findOne(params.where)
+        : await Order.findOne(params.where).select(params.select);
+
+    // return order
+    return cb(order);
   });
 
   // on findAllOrders
