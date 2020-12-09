@@ -103,7 +103,8 @@ io.on('connection', socket => {
     const columnTypes = {
       date: {
         columns: ['Order Date', 'Requested Delivery Date'],
-        format: s => (s === '' ? '' : new Date(s).getTime()),
+        format: s =>
+          s === '' ? '' : new Date(s).getTime() + +process.env.TIME_OFFSET,
       },
     };
 
