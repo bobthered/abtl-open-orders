@@ -217,6 +217,18 @@ io.on('connection', socket => {
     // return credentials
     return cb({ user });
   });
+  // on removeOrder
+  socket.on('removeOrder', async req => {
+    // get user _id
+    const { _id } = req;
+
+    try {
+      await Order.findOneAndDelete({ _id });
+      socket.broadcast.emit('removeOrder', _id);
+    } catch (error) {
+      console.log(error);
+    }
+  });
   // on removeUser
   socket.on('removeUser', async req => {
     // get user _id

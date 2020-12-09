@@ -1,5 +1,5 @@
 <div data-page="orders" class="opacity-0 pointer-events-none">
-  <div class="p-4 flex-col space-y-4 items-start bg-gray-100">
+  <div class="p-4 flex-col space-y-4 items-start min-h-full bg-gray-100">
     <filter class="inline-flex shadow rounded">
       <button class="current" data-filter="all">All</button>
       <button data-filter="complete">Complete</button>
@@ -10,6 +10,7 @@
       <table class="min-w-full sortable">
         <thead>
           <tr>
+            <th class="w-1" data-admin data-super>Delete</th>
             <th class="w-20">Complete</th>
             <th class="w-1">Revisions</th>
             <th class="text-left whitespace-nowrap">SO #</th>
@@ -25,6 +26,31 @@
         <tbody>
           <template>
             <tr class="transition duration-200">
+              <td
+                class="flex items-center justify-center"
+                data-admin
+                data-super
+              >
+                <button
+                  class="p-0 transition duration-200 bg-transparent text-gray-600 hover:text-gray-800"
+                  data-button="delete"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </td>
               <td>
                 <div class="flex justify-center">
                   <label

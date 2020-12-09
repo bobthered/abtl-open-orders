@@ -68,9 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   node.form.signin.addEventListener('submit', signinUser);
 
   // modal closes listeners
-  node.modal.closes.forEach(elem =>
-    elem.addEventListener('click', () => modal.hide()),
-  );
+  node.modal.closes.forEach(elem => elem.addEventListener('click', modal.hide));
 
   // sign out listener
   node.signout.addEventListener('click', user.signout);
@@ -97,6 +95,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     user.updateType();
   });
   socket.on('addUser', users.add);
+  socket.on('removeOrder', removeOrder);
   socket.on('removeUser', users.remove);
   socket.on('updateOrder', updateOrder);
   socket.on('updateUser', users.update);
@@ -219,6 +218,44 @@ const addOrder = obj => {
     if (e.target.checked === false) obj.shipDate = '';
     socket.emit('updateOrder', { _id }, { shipDate: obj.shipDate });
     updateField('shipDate', tr);
+  };
+
+  // delete event listener function
+  const deleteEventListener = e => {
+    // get tr
+    const tr = e.target.closest('tr');
+
+    // get the _id
+    const _id = tr.getAttribute('data-id');
+
+    // get the so#
+    const order = tr.querySelector('[data-field="order"]').innerHTML;
+
+    // modal info
+    const body = `<form class="flex flex-col space-y-8 text-gray-800"><p>Are you sure you want to delete <span class="font-bold">${order}</span>?</p><div class="flex justify-end space-x-4 w-full"><a href="#" class="px-2 py-3 rounded ring-1 ring-gray-400 ring-inset" data-modal-close>Cancel</a><button>Delete</button></div></form>`;
+    const title = 'Delete Order';
+
+    // show modal
+    modal.show({ body, title });
+
+    // modal close event listener
+    node.modal.body
+      .querySelector('[data-modal-close]')
+      .addEventListener('click', modal.hide);
+
+    // form submit event listener
+    node.modal.body.querySelector('form').addEventListener('submit', e => {
+      e.preventDefault();
+
+      // send the delete socket
+      socket.emit('removeOrder', { _id });
+
+      // hide modal
+      modal.hide();
+
+      // remove the tr
+      tr.parentNode.removeChild(tr);
+    });
   };
 
   // input event listener function
@@ -377,6 +414,11 @@ const addOrder = obj => {
   // input event listeners
   clone.querySelectorAll('input, select, textarea').forEach(inputEventListener);
 
+  // delete event listener
+  clone
+    .querySelector('[data-button="delete"]')
+    .addEventListener('click', deleteEventListener);
+
   // revision event listener
   clone
     .querySelector('[data-field="revisions"]')
@@ -520,7 +562,8 @@ const loadData = async () => {
   });
 };
 const modal = {
-  hide: () => {
+  hide: (e = null) => {
+    if (e !== null) e.preventDefault();
     node.modal.container.classList.add('pointer-events-none');
     node.modal.container.classList.remove('opacity-100');
   },
@@ -563,6 +606,13 @@ const page = {
       .querySelector(`[data-page="${id}"]`)
       .classList.remove('opacity-0', 'pointer-events-none');
   },
+};
+const removeOrder = _id => {
+  // find tr
+  const tr = node.orders.tbody.querySelector(`tr[data-id="${_id}"]`);
+
+  // remove tr
+  tr.parentNode.removeChild(tr);
 };
 const signinUser = e => {
   // prevent default form submission
