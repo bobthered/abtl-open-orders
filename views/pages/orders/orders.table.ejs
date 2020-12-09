@@ -5,15 +5,17 @@
       <button data-filter="complete">Complete</button>
       <button data-filter="open">Open</button>
       <button data-filter="late">Late</button>
+      <button data-filter="paidRush">Paid Rush</button>
     </filter>
     <div class="max-h-full min-w-full max-w-full shadow md:max-h-none">
       <table class="min-w-full sortable">
         <thead>
           <tr>
-            <th class="w-1" data-admin data-super>Delete</th>
-            <th class="w-20">Complete</th>
+            <th class="w-1" data-admin data-super></th>
+            <th class="w-1">Complete</th>
             <th class="w-1">Revisions</th>
             <th class="text-left whitespace-nowrap">SO #</th>
+            <th class="w-1 whitespace-nowrap">Paid Rush</th>
             <th class="text-right">Scheduled Date</th>
             <th class="text-right">Ship Date</th>
             <th class="text-right">Cust. #</th>
@@ -77,6 +79,14 @@
                 </div>
               </td>
               <td class="whitespace-nowrap" data-field="order"></td>
+              <td>
+                <div class="flex justify-center">
+                  <label class="checkbox">
+                    <input data-field="paidRush" type="checkbox" />
+                    <span class="w-10 h-6 block ring-2 rounded-full"></span>
+                  </label>
+                </div>
+              </td>
               <td
                 class="whitespace-nowrap text-right"
                 data-field="requestedDate"

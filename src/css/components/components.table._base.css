@@ -19,9 +19,15 @@ td input {
 tr.late {
   @apply bg-red-50  border-red-200;
 }
+tr.rush {
+  @apply bg-yellow-300 border-yellow-500;
+}
+tr.rush label.checkbox input:checked ~ span:after {
+  @apply bg-yellow-300;
+}
 tr.complete {
   @apply bg-green-50 border-green-200;
 }
 tr.complete label.checkbox input:checked ~ span:after {
-  @apply bg-green-100;
+  @apply bg-green-50;
 }

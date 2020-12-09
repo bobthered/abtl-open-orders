@@ -2,6 +2,10 @@
 const mongoose = require('mongoose');
 
 const OrderSchema = new mongoose.Schema({
+  paidRush: {
+    type: Boolean,
+    default: false,
+  },
   order: String,
   account: String,
   cunumber: String,

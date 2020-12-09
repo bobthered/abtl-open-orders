@@ -285,6 +285,19 @@ const addOrder = obj => {
         socket.emit('updateOrder', { _id }, { $push: { revisions: revision } });
       }
 
+      // check if is paid rush button
+      if (field === 'paidRush') {
+        const revision = {};
+        revision.date = currentDateString();
+        revision.revision = e.target.checked
+          ? 'Added - Paid Rush'
+          : 'Removed - Paid Rush';
+        revision.user = `${user.data.first} ${user.data.last}`;
+        tr.querySelector('[data-field="revisions"]').innerHTML =
+          +tr.querySelector('[data-field="revisions"]').innerHTML + 1;
+        socket.emit('updateOrder', { _id }, { $push: { revisions: revision } });
+      }
+
       table.update();
     });
   };
@@ -316,6 +329,24 @@ const addOrder = obj => {
         });
       },
     );
+  };
+
+  // paid rush event listener function
+  const paidRushEventListener = e => {
+    // get the id
+    const { _id } = obj;
+
+    // get the tr element
+    const tr = e.target.closest('tr');
+
+    // get value
+    const paidRush = e.target.checked;
+
+    // change tr class
+    tr.classList[paidRush ? 'add' : 'remove']('rush');
+
+    // update complete date
+    socket.emit('updateOrder', { _id }, { paidRush });
   };
 
   // revision event listener function
@@ -387,6 +418,7 @@ const addOrder = obj => {
   // update information
   [
     'complete',
+    'paidRush',
     'order',
     'requestedDate',
     'shipDate',
@@ -410,6 +442,9 @@ const addOrder = obj => {
     Math.floor(Date.now() / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)
   )
     tr.classList.add('late');
+
+  // check if paid rush
+  if (obj.paidRush) tr.classList.add('rush');
 
   // input event listeners
   clone.querySelectorAll('input, select, textarea').forEach(inputEventListener);
@@ -438,6 +473,11 @@ const addOrder = obj => {
   clone
     .querySelector('[data-field="complete"]')
     .addEventListener('click', completeToggle);
+
+  // paid rush event listener
+  clone
+    .querySelector('[data-field="paidRush"]')
+    .addEventListener('click', paidRushEventListener);
 
   // set row id
   tr.setAttribute('data-id', obj._id);
@@ -671,6 +711,7 @@ const table = {
     if (filterType === 'complete') querySelector = 'tr.complete';
     if (filterType === 'open') querySelector = 'tr:not(.complete)';
     if (filterType === 'late') querySelector = 'tr.late';
+    if (filterType === 'paidRush') querySelector = 'tr.rush';
     tableRows.show([...node.orders.tbody.querySelectorAll(querySelector)]);
   },
 };
@@ -706,6 +747,7 @@ const updateOrder = obj => {
   // update information
   [
     'complete',
+    'paidRush',
     'order',
     'requestedDate',
     'shipDate',
@@ -729,6 +771,9 @@ const updateOrder = obj => {
     Math.floor(Date.now() / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)
   )
     tr.classList.add('late');
+
+  // check if paid rush
+  tr.classList[obj.paidRush ? 'add' : 'remove']('rush');
 
   table.update();
 };
