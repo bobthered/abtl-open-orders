@@ -812,12 +812,44 @@ const users = {
       });
     };
 
-    // remove user
-    const removeUser = e => {
+    // delete event listener function
+    const deleteEventListener = e => {
+      // get tr
       const tr = e.target.closest('tr');
+
+      // get the _id
       const _id = tr.getAttribute('data-id');
-      socket.emit('removeUser', { _id });
-      tr.parentNode.removeChild(tr);
+
+      // get user full name
+      const first = tr.querySelector('[data-field="first"]').innerHTML;
+      const last = tr.querySelector('[data-field="last"]').innerHTML;
+      const full = `${first} ${last}`;
+
+      // modal info
+      const body = `<form class="flex flex-col space-y-8 text-gray-800"><p>Are you sure you want to delete <span class="font-bold">${full}</span>?</p><div class="flex justify-end space-x-4 w-full"><a href="#" class="px-2 py-3 rounded ring-1 ring-gray-400 ring-inset" data-modal-close>Cancel</a><button>Delete</button></div></form>`;
+      const title = 'Delete User';
+
+      // show modal
+      modal.show({ body, title });
+
+      // modal close event listener
+      node.modal.body
+        .querySelector('[data-modal-close]')
+        .addEventListener('click', modal.hide);
+
+      // form submit event listener
+      node.modal.body.querySelector('form').addEventListener('submit', e => {
+        e.preventDefault();
+
+        // send the delete socket
+        socket.emit('removeUser', { _id });
+
+        // hide modal
+        modal.hide();
+
+        // remove the tr
+        tr.parentNode.removeChild(tr);
+      });
     };
 
     // update information function
@@ -842,7 +874,7 @@ const users = {
     // remove user event listener
     clone
       .querySelector('[data-button="delete"]')
-      .addEventListener('click', removeUser);
+      .addEventListener('click', deleteEventListener);
 
     // append clone to tbody
     node.users.tbody.appendChild(clone);
