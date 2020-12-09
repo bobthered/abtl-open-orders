@@ -138,12 +138,15 @@ io.on('connection', socket => {
 
         // create new document
         const order = await Order.findOneAndUpdate({ order: obj.order }, obj, {
-          new: true,
           upsert: true,
           setDefaultsOnInsert: true,
         });
 
-        return order;
+        if (order === null)
+          await Order.findOneAndUpdate(
+            { order: obj.order },
+            { revisions: [revision] },
+          );
       }),
     );
 
