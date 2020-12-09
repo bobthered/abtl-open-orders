@@ -115,7 +115,7 @@ io.on('connection', socket => {
     const header = orders.shift();
 
     // add each order
-    orders = await Promise.all(
+    await Promise.all(
       orders.map(async (arr, i) => {
         // init obj
         const obj = {};
@@ -146,6 +146,17 @@ io.on('connection', socket => {
         return order;
       }),
     );
+
+    const today =
+      Math.floor(new Date().getTime() / (1000 * 60 * 60 * 24)) *
+      1000 *
+      60 *
+      60 *
+      24;
+
+    orders = await Order.find({
+      $or: [{ shipDate: '' }, { shipDate: { $gte: today } }],
+    });
 
     // send to all other clients
     socket.broadcast.emit('addNavision', orders);
