@@ -42,7 +42,8 @@
             <th>Last</th>
             <th>Email</th>
             <th>Type</th>
-            <th>Active</th>
+            <th class="w-1">Onboarded</th>
+            <th class="w-1">Active</th>
           </tr>
         </thead>
         <tbody>
@@ -73,9 +74,17 @@
               <td data-field="last"></td>
               <td data-field="email"></td>
               <td data-field="type"></td>
+              <td>
+                <div class="flex justify-center">
+                  <label class="checkbox readonly">
+                    <input data-field="onboarded" type="checkbox" />
+                    <span class="w-10 h-6 block ring-2 rounded-full"></span>
+                  </label>
+                </div>
+              </td>
               <td class="flex justify-center">
                 <label class="checkbox">
-                  <input type="checkbox" />
+                  <input data-field="active" type="checkbox" />
                   <span class="w-10 h-6 block ring-2 rounded-full"></span>
                 </label>
               </td>

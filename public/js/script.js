@@ -41,7 +41,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       closes: document.querySelectorAll('[data-modal-close]'),
       title: document.querySelector('modal .title'),
     },
-    pages: document.querySelectorAll('[data-page]'),
+    page: {
+      nodes: document.querySelectorAll('[data-page]'),
+    },
     signin: document.querySelector('signin'),
     signout: document.querySelector('[data-signout]'),
     spinner: document.querySelector('spinner'),
@@ -632,7 +634,7 @@ const onboard = {
 const page = {
   hide: (id = null) => {
     if (id === null)
-      [...node.pages].forEach(elem =>
+      [...node.page.nodes].forEach(elem =>
         elem.classList.add('opacity-0', 'pointer-events-none'),
       );
     if (id !== null)
@@ -800,6 +802,7 @@ const user = {
         spinner.hide();
       } else {
         form.clear(e.target);
+        socket.emit('updateUser', { _id: data.user._id }, { onboarded: true });
         onboard.hide();
         user.signin(data.user);
       }
@@ -898,8 +901,12 @@ const users = {
     };
 
     // update information function
-    const updateField = field =>
-      (clone.querySelector(`[data-field="${field}"]`).innerHTML = obj[field]);
+    const updateField = field => {
+      const elem = clone.querySelector(`[data-field="${field}"]`);
+      if (elem.nodeName === 'INPUT' && elem.getAttribute('type') === 'checkbox')
+        elem.checked = obj[field];
+      if (elem.nodeName === 'TD') elem.innerHTML = obj[field];
+    };
 
     // clone template
     const clone = node.users.template.cloneNode(true);
@@ -908,13 +915,14 @@ const users = {
     clone.querySelector('tr').setAttribute('data-id', obj._id);
 
     // update information
-    ['first', 'last', 'email', 'type'].forEach(updateField);
+    ['first', 'last', 'email', 'type', 'onboarded', 'active'].forEach(
+      updateField,
+    );
 
-    // update active
-    clone.querySelector('input').checked = obj.active;
-
-    // complete toggle event listener
-    clone.querySelector('input').addEventListener('click', activeComplete);
+    // active toggle event listener
+    clone
+      .querySelector('[data-field="active"]')
+      .addEventListener('click', activeComplete);
 
     // remove user event listener
     clone
