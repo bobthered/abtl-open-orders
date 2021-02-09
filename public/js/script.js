@@ -396,13 +396,16 @@ const addOrder = obj => {
 
     elems.forEach(elem => {
       // check if field needs to be formatted
-      if (
-        elem.hasAttribute('data-field-format') &&
-        elem.getAttribute('data-field-format') === 'date'
-      ) {
-        elem.setAttribute('data-sort', obj[field]);
-        obj[field] =
-          obj[field] === '' ? '' : moment(obj[field], 'x').format('M/D/YY');
+      if (elem.hasAttribute('data-field-format')) {
+        if (elem.getAttribute('data-field-format') === 'currency') {
+          elem.setAttribute('data-sort', parseFloat(obj[field]));
+          obj[field] = '$' + parseFloat(obj[field]).toFixed(2);
+        }
+        if (elem.getAttribute('data-field-format') === 'date') {
+          elem.setAttribute('data-sort', obj[field]);
+          obj[field] =
+            obj[field] === '' ? '' : moment(obj[field], 'x').format('M/D/YY');
+        }
       }
       // update field
       if (elem.nodeName === 'BUTTON') elem.innerHTML = obj[field].length || 0;
@@ -726,13 +729,16 @@ const updateOrder = obj => {
 
     elems.forEach(elem => {
       // check if field needs to be formatted
-      if (
-        elem.hasAttribute('data-field-format') &&
-        elem.getAttribute('data-field-format') === 'date'
-      ) {
-        elem.setAttribute('data-sort', obj[field]);
-        obj[field] =
-          obj[field] === '' ? '' : moment(obj[field], 'x').format('M/D/YY');
+      if (elem.hasAttribute('data-field-format')) {
+        if (elem.getAttribute('data-field-format') === 'currency') {
+          elem.setAttribute('data-sort', parseFloat(obj[field]));
+          obj[field] = '$' + parseFloat(obj[field]).toFixed(2);
+        }
+        if (elem.getAttribute('data-field-format') === 'date') {
+          elem.setAttribute('data-sort', obj[field]);
+          obj[field] =
+            obj[field] === '' ? '' : moment(obj[field], 'x').format('M/D/YY');
+        }
       }
       // update field
       if (elem.nodeName === 'BUTTON') elem.innerHTML = obj[field].length || 0;
