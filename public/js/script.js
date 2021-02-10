@@ -398,8 +398,8 @@ const addOrder = obj => {
       // check if field needs to be formatted
       if (elem.hasAttribute('data-field-format')) {
         if (elem.getAttribute('data-field-format') === 'currency') {
-          elem.setAttribute('data-sort', parseFloat(obj[field]));
-          obj[field] = '$' + parseFloat(obj[field]).toFixed(2);
+          elem.setAttribute('data-sort', parseFloat(obj[field].replace(',', '')));
+          obj[field] = '$' + parseFloat(obj[field].replace(',', '')).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         if (elem.getAttribute('data-field-format') === 'date') {
           elem.setAttribute('data-sort', obj[field]);
@@ -731,8 +731,8 @@ const updateOrder = obj => {
       // check if field needs to be formatted
       if (elem.hasAttribute('data-field-format')) {
         if (elem.getAttribute('data-field-format') === 'currency') {
-          elem.setAttribute('data-sort', parseFloat(obj[field]));
-          obj[field] = '$' + parseFloat(obj[field]).toFixed(2);
+          elem.setAttribute('data-sort', parseFloat(obj[field].replace(',', '')));
+          obj[field] = '$' + parseFloat(obj[field].replace(',', '')).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         if (elem.getAttribute('data-field-format') === 'date') {
           elem.setAttribute('data-sort', obj[field]);
